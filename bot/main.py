@@ -6,6 +6,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 from bot.db.database import init_db
 from bot.handlers import router
+from bot.scheduler import scheduler_loop
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -26,4 +27,7 @@ async def main():
     dp.include_router(router)
 
     logger.info("Bot is running...")
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    await asyncio.gather(
+        dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types()),
+        scheduler_loop(bot),
+    )

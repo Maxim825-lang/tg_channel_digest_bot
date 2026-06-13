@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from bot.db.database import add_channel, get_channels, set_digest_time, get_settings, ensure_user
+from bot.digest import build_digest_for_user
 from bot.keyboards import (
     main_menu,
     BTN_ADD_CHANNEL, BTN_MY_CHANNELS, BTN_DIGEST_TIME,
@@ -101,13 +102,28 @@ async def btn_get_digest(message: Message, state: FSMContext):
     if not channels:
         await message.answer("Сначала добавьте каналы.", reply_markup=main_menu())
         return
-    await message.answer("⏳ Генерирую выжимку...", reply_markup=main_menu())
-    lines = "\n".join(f"• {ch}" for ch in channels)
+
     await message.answer(
-        f"📰 <b>Выжимка по каналам:</b>\n\n{lines}\n\n"
-        "<i>Функция генерации контента будет добавлена позже.</i>",
-        parse_mode="HTML",
+        "⏳ Собираю сообщения за последние 24 часа...",
+        reply_markup=main_menu(),
     )
+
+    try:
+        digest = await build_digest_for_user(message.from_user.id)
+    except Exception as e:
+        logger.error("Digest error for user %s: %s", message.from_user.id, e)
+        await message.answer(
+            "❌ Произошла ошибка при генерации выжимки. Попробуйте позже.",
+            reply_markup=main_menu(),
+        )
+        return
+
+    # Разбиваем на части по 3500 символов, если текст длинный
+    chunk_size = 3500
+    for i in range(0, max(len(digest), 1), chunk_size):
+        chunk = digest[i:i + chunk_size]
+        if chunk.strip():
+            await message.answer(chunk, parse_mode="HTML", reply_markup=main_menu())
 
 
 @router.message(F.text == BTN_SETTINGS)

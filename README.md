@@ -48,7 +48,56 @@ python run.py
 ```
 BOT_TOKEN=your_token_here
 ADMIN_ID=your_telegram_id_here
+
+# Telethon (для чтения чужих каналов)
+TELETHON_ENABLED=false
+TELEGRAM_API_ID=0
+TELEGRAM_API_HASH=
+
+# OpenAI (необязательно)
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
 ```
+
+## Как включить реальный сбор каналов (Telethon)
+
+1. Получите `TELEGRAM_API_ID` и `TELEGRAM_API_HASH` на [my.telegram.org](https://my.telegram.org) → App configuration.
+
+2. Пропишите в `.env`:
+   ```
+   TELETHON_ENABLED=true
+   TELEGRAM_API_ID=123456
+   TELEGRAM_API_HASH=abcdef...
+   TELETHON_SESSION=telethon_session
+   ```
+
+3. Авторизуйтесь (один раз локально):
+   ```bash
+   python login_telethon.py
+   ```
+   Введите номер телефона и код из Telegram. Создастся файл `telethon_session.session`.
+
+4. Запустите бота:
+   ```bash
+   python run.py
+   ```
+
+5. Добавьте каналы через бота и нажмите «📰 Получить выжимку сейчас».
+
+### OpenAI (необязательно)
+
+Если хотите AI-выжимку вместо extractive summary — пропишите:
+```
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+```
+
+### Render и Telethon
+
+Telethon хранит сессию в файле `.session`. На Render Free нет persistent disk,
+поэтому Telethon лучше использовать **только локально** или подключить Render Disk.
+Для production рекомендуется хранить session как base64 в env и загружать через
+[StringSession](https://docs.telethon.dev/en/stable/modules/sessions.html).
 
 ## Деплой на Render
 
