@@ -1,0 +1,7 @@
+.env
+venv/
+__pycache__/
+config/secrets.json
+*.pyc
+*.pyo
+.DS_Store
