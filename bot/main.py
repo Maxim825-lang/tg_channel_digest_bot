@@ -4,6 +4,7 @@ import os
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
+from bot.db.database import init_db
 from bot.handlers import router
 
 load_dotenv()
@@ -16,6 +17,9 @@ async def main():
     if not token or token == "PASTE_TOKEN_HERE":
         logger.error("BOT_TOKEN не задан в .env!")
         return
+
+    await init_db()
+    logger.info("Database initialized")
 
     bot = Bot(token=token)
     dp = Dispatcher(storage=MemoryStorage())

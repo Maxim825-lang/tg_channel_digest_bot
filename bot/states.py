@@ -1,5 +1,6 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
-class Dialog(StatesGroup):
-    waiting = State()
+class Form(StatesGroup):
+    waiting_channel = State()
+    waiting_time = State()
