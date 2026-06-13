@@ -1,4 +1,4 @@
-# Деплой на Render
+# Деплой на Render (Free Web Service)
 
 ## 1. Получи BOT_TOKEN
 
@@ -23,29 +23,61 @@ git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
 git push -u origin main
 ```
 
-## 4. Создай Background Worker на Render
+## 4. Создай Web Service на Render
 
-1. Зайди на [render.com](https://render.com) → **New** → **Background Worker**
+1. Зайди на [render.com](https://render.com) → **New** → **Web Service**
 2. Подключи GitHub репозиторий
 3. Render автоматически найдёт `render.yaml` и настроит сервис
+4. Plan: **Free**
+5. Build Command: `pip install -r requirements.txt`
+6. Start Command: `python run.py`
+
+> **Почему Web Service, а не Background Worker?**
+> Render не предоставляет бесплатный план для Background Worker.
+> Web Service на Free плане доступен — бот открывает HTTP-порт,
+> а Telegram polling работает параллельно в том же процессе.
 
 ## 5. Добавь Environment Variables
 
-В настройках сервиса на Render → **Environment**:
+В настройках сервиса на Render → **Environment** обязательно задай:
 
 | Ключ | Значение |
 |------|----------|
 | `BOT_TOKEN` | токен от BotFather |
 | `ADMIN_ID` | твой Telegram ID |
 
-## 6. Cron Job (опционально)
+Остальные переменные уже заданы в `render.yaml` со значениями по умолчанию.
 
-Если нужна периодическая задача (рассылка, напоминания):
+## 6. Health Check
 
-1. Render → **New** → **Cron Job**
-2. Command: `python cron.py`
-3. Schedule: например `0 9 * * *` (каждый день в 09:00 UTC)
+Render автоматически проверяет `/health` — эндпоинт возвращает:
+```json
+{"status": "ok", "service": "telegram-bot"}
+```
+
+Корневой путь `/` возвращает `OK`.
+
+## 7. Расписание (APScheduler)
+
+Отдельный Cron Job на Render **не нужен** — APScheduler внутри бота
+сам управляет расписанием (дайджесты, напоминания и т.д.).
 
 ## Проверка
 
-После деплоя напиши боту `/start` в Telegram — он должен ответить.
+После деплоя:
+- Напиши боту `/start` в Telegram — он должен ответить
+- Открой URL сервиса в браузере — должен вернуться `OK`
+- `<url>/health` — должен вернуться JSON со статусом
+
+## Локальный запуск
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+# Заполни BOT_TOKEN и ADMIN_ID в .env
+python run.py
+# Web server: http://localhost:10000
+# Telegram polling: запущен параллельно
+```

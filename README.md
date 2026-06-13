@@ -1,8 +1,7 @@
 # tg_bot_20260613_235649
 
-**Задача:** залей на рендер+крон
-**Тип:** generic
-**Стек:** Python 3.10+ · aiogram 3 · aiosqlite
+**Тип:** Telegram-бот с web-интерфейсом для Render Free Web Service
+**Стек:** Python 3.10+ · aiogram 3 · aiosqlite · aiohttp
 
 ## Быстрый старт
 
@@ -21,13 +20,17 @@ cp .env.example .env
 
 # 4. Запуск
 python run.py
+# Web server: http://localhost:10000  (GET / и GET /health)
+# Telegram polling: запущен параллельно
 ```
 
 ## Структура проекта
+
 ```
 .
-├── run.py                # Точка входа
+├── run.py                # Точка входа: web server + bot polling
 ├── requirements.txt
+├── render.yaml           # Render Web Service конфигурация
 ├── .env.example
 ├── bot/
 │   ├── main.py           # Инициализация aiogram
@@ -37,11 +40,22 @@ python run.py
 │   └── db/
 │       └── database.py   # SQLite операции
 └── data/
-    └── applications.db   # Создаётся автоматически
+    └── bot.db            # Создаётся автоматически
 ```
 
 ## .env
+
 ```
 BOT_TOKEN=your_token_here
 ADMIN_ID=your_telegram_id_here
 ```
+
+## Деплой на Render
+
+См. [DEPLOY_RENDER.md](DEPLOY_RENDER.md).
+
+Краткая инструкция:
+1. **New → Web Service** (не Background Worker — он платный)
+2. Подключи репозиторий — `render.yaml` настроит всё автоматически
+3. Задай `BOT_TOKEN` и `ADMIN_ID` в Environment Variables
+4. Free план доступен для Web Service
