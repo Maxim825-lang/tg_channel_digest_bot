@@ -59,3 +59,4 @@ ADMIN_ID=your_telegram_id_here
 2. Подключи репозиторий — `render.yaml` настроит всё автоматически
 3. Задай `BOT_TOKEN` и `ADMIN_ID` в Environment Variables
 4. Free план доступен для Web Service
+# redeploy Sun Jun 14 00:22:56 MSK 2026
