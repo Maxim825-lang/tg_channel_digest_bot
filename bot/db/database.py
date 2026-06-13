@@ -1,10 +1,12 @@
 import os
 import aiosqlite
 
-DB_PATH = os.getenv("DB_PATH", "data/bot.db")
+# render.yaml exposes DATABASE_PATH; fall back to local path for development
+DB_PATH = os.getenv("DATABASE_PATH", os.getenv("DB_PATH", "data/bot.db"))
 
 
 async def init_db():
+    os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS users (
